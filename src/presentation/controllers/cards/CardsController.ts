@@ -4,12 +4,15 @@ import { Controller, Get } from '@nestjs/common';
 @Controller()
 export class CardsController {
     constructor(private readonly cardsUseCase: CardsUseCase) {}
+
     @Get()
     async findAllFromCurrentUser() {
-        await this.cardsUseCase.getAllCardsWithUserId();
+        const cards = await this.cardsUseCase.getAllCardsWithUserId();
+        const lastIndex = cards.length - 1;
+
         return {
-            today: {},
-            previous: [],
+            today: cards[lastIndex],
+            previous: cards.slice(0, lastIndex),
         };
     }
 
