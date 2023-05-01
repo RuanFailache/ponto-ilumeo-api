@@ -6,12 +6,12 @@ export class CardsController {
     constructor(private readonly cardsUseCase: CardsUseCase) {}
 
     async getCurrentUserTime() {
-        return this.cardsUseCase.getTodayTotalTimeFromCurrentUser('');
+        return this.cardsUseCase.calculateTotalTimeForToday('');
     }
 
     @Get()
     async findAllFromCurrentUser() {
-        return this.cardsUseCase.getAllPreviousCardsWithUserId('');
+        return this.cardsUseCase.calculateTotalTimeForEachPreviousDay('');
     }
 
     // @Patch()

@@ -24,13 +24,13 @@ describe('CardsUseCase', () => {
         jest.spyOn(Date, 'now').mockReturnValue(currentDate.getTime());
     });
 
-    describe('getTodayTotalTimeFromCurrentUser', () => {
+    describe('calculateTotalTimeForToday', () => {
         it('Should ensure method calls CardsRepository.findAllFromCurrentUser', async () => {
             const mock = jest
                 .spyOn(cardsRepository, 'findAllFromCurrentUser')
                 .mockResolvedValue([]);
 
-            await sut.getTodayTotalTimeFromCurrentUser(userId);
+            await sut.calculateTotalTimeForToday(userId);
 
             expect(mock).toHaveBeenCalled();
         });
@@ -74,7 +74,7 @@ describe('CardsUseCase', () => {
                 }),
             ]);
 
-            const result = await sut.getTodayTotalTimeFromCurrentUser(userId);
+            const result = await sut.calculateTotalTimeForToday(userId);
 
             expect(result).toBeDefined();
             expect(result).toStrictEqual({
@@ -111,7 +111,7 @@ describe('CardsUseCase', () => {
                 }),
             ]);
 
-            const result = await sut.getTodayTotalTimeFromCurrentUser(userId);
+            const result = await sut.calculateTotalTimeForToday(userId);
 
             expect(result).toBeDefined();
 
@@ -122,13 +122,13 @@ describe('CardsUseCase', () => {
         });
     });
 
-    describe('getAllPreviousCardsWithUserId', () => {
+    describe('calculateTotalTimeForEachPreviousDay', () => {
         it('Should ensure method calls CardsRepository.findAllFromCurrentUser', async () => {
             const mock = jest
                 .spyOn(cardsRepository, 'findAllFromCurrentUser')
                 .mockResolvedValue([]);
 
-            await sut.getAllPreviousCardsWithUserId(userId);
+            await sut.calculateTotalTimeForEachPreviousDay(userId);
 
             expect(mock).toHaveBeenCalled();
         });
@@ -172,7 +172,9 @@ describe('CardsUseCase', () => {
                 }),
             ]);
 
-            const result = await sut.getAllPreviousCardsWithUserId(userId);
+            const result = await sut.calculateTotalTimeForEachPreviousDay(
+                userId,
+            );
 
             expect(result).toBeDefined();
             expect(result).toHaveLength(2);
@@ -197,7 +199,9 @@ describe('CardsUseCase', () => {
                 }),
             ]);
 
-            const result = await sut.getAllPreviousCardsWithUserId(userId);
+            const result = await sut.calculateTotalTimeForEachPreviousDay(
+                userId,
+            );
 
             expect(result).toBeDefined();
 

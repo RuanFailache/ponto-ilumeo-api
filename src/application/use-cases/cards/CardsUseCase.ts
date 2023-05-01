@@ -7,31 +7,23 @@ import { HOUR, MINUTE } from '@utils/constants/time';
 export class CardsUseCase {
     constructor(private readonly cardsRepository: CardsRepository) {}
 
-    private formatDate(date: Date) {
-        const day = date.getDate();
-        const month = date.getMonth();
-        const year = date.getFullYear();
-
-        return `${day}/${month}/${year}`;
-    }
-
-    private getTimeDifference(createdAt: Date, finishedAt: Date): TimeEntity {
+    private calculateTimeDifference(
+        createdAt: Date,
+        finishedAt: Date,
+    ): TimeEntity {
         const createdTimeInMs = createdAt.getTime();
         const finishedTimeInMs = finishedAt.getTime();
-        const differenceInMs = Math.abs(finishedTimeInMs - createdTimeInMs);
-        return {
-            hours: Math.floor(differenceInMs / HOUR),
-            minutes: Math.floor((differenceInMs / MINUTE) % 60),
-        };
+        const differenceInMs = Math.abs(createdTimeInMs - finishedTimeInMs);
+        const hours = Math.floor(differenceInMs / HOUR);
+        const minutes = Math.floor((differenceInMs / MINUTE) % 60);
+        return { hours, minutes };
     }
 
-    async getTodayTotalTimeFromCurrentUser(
-        userId: string,
-    ): Promise<CardEntity> {
+    async calculateTotalTimeForToday(userId: string): Promise<CardEntity> {
         const cards = await this.cardsRepository.findAllFromCurrentUser(userId);
 
         const currentDate = new Date(Date.now());
-        const formattedCurrentDate = this.formatDate(currentDate);
+        const formattedCurrentDate = currentDate.toLocaleDateString();
 
         const userCard: CardEntity = {
             date: currentDate,
@@ -42,11 +34,11 @@ export class CardsUseCase {
         };
 
         for (const card of cards) {
-            const formattedDate = this.formatDate(card.createdAt);
+            const formattedDate = card.createdAt.toLocaleDateString();
 
             if (formattedCurrentDate !== formattedDate) continue;
 
-            const time = this.getTimeDifference(
+            const time = this.calculateTimeDifference(
                 card.createdAt,
                 card.finishedAt ?? currentDate,
             );
@@ -68,20 +60,22 @@ export class CardsUseCase {
         return userCard;
     }
 
-    async getAllPreviousCardsWithUserId(userId: string): Promise<CardEntity[]> {
+    async calculateTotalTimeForEachPreviousDay(
+        userId: string,
+    ): Promise<CardEntity[]> {
         const cards = await this.cardsRepository.findAllFromCurrentUser(userId);
 
         const hashTable: Record<string, CardEntity> = {};
 
         const currentDate = new Date(Date.now());
-        const formattedCurrentDate = this.formatDate(currentDate);
+        const formattedCurrentDate = currentDate.toLocaleDateString();
 
         for (const card of cards) {
-            const formattedDate = this.formatDate(card.createdAt);
+            const formattedDate = card.createdAt.toLocaleDateString();
 
-            if (formattedCurrentDate == formattedDate) continue;
+            if (formattedCurrentDate === formattedDate) continue;
 
-            const cardTotalTime = this.getTimeDifference(
+            const cardTotalTime = this.calculateTimeDifference(
                 card.createdAt,
                 card.finishedAt ?? currentDate,
             );

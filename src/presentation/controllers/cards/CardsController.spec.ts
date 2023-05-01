@@ -26,7 +26,7 @@ describe('CardsController', () => {
     describe('getCurrentUserTime', () => {
         beforeAll(() => {
             mock = jest
-                .spyOn(cardsUserCase, 'getTodayTotalTimeFromCurrentUser')
+                .spyOn(cardsUserCase, 'calculateTotalTimeForToday')
                 .mockResolvedValue({
                     date: faker.date.past(),
                     totalTime: {
@@ -36,7 +36,7 @@ describe('CardsController', () => {
                 });
         });
 
-        it('Should ensure method calls CardsUserCase.getTodayTotalTimeFromCurrentUser', async () => {
+        it('Should ensure method calls CardsUserCase.calculateTotalTimeForToday', async () => {
             await sut.getCurrentUserTime();
 
             expect(mock).toHaveBeenCalled();
@@ -54,7 +54,7 @@ describe('CardsController', () => {
     describe('findAllFromCurrentUser', () => {
         beforeAll(() => {
             mock = jest
-                .spyOn(cardsUserCase, 'getAllPreviousCardsWithUserId')
+                .spyOn(cardsUserCase, 'calculateTotalTimeForEachPreviousDay')
                 .mockResolvedValue([]);
         });
 
@@ -67,7 +67,7 @@ describe('CardsController', () => {
         it('Should ensure method returns correct values on success', async () => {
             jest.spyOn(
                 cardsUserCase,
-                'getAllPreviousCardsWithUserId',
+                'calculateTotalTimeForEachPreviousDay',
             ).mockResolvedValue([
                 CardsFactory.generateFakeCardEntity(),
                 CardsFactory.generateFakeCardEntity(),
