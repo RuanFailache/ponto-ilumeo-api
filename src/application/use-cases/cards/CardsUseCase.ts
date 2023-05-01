@@ -15,7 +15,7 @@ export class CardsUseCase {
         return `${day}/${month}/${year}`;
     }
 
-    private calculateTotalTime(createdAt: Date, finishedAt: Date): TimeEntity {
+    private getTimeDifference(createdAt: Date, finishedAt: Date): TimeEntity {
         const createdTimeInMs = createdAt.getTime();
         const finishedTimeInMs = finishedAt.getTime();
         const differenceInMs = Math.abs(finishedTimeInMs - createdTimeInMs);
@@ -25,8 +25,51 @@ export class CardsUseCase {
         };
     }
 
-    async getAllPreviousCardsWithUserId(): Promise<CardEntity[]> {
-        const cards = await this.cardsRepository.findAll();
+    async getTodayTotalTimeFromCurrentUser(
+        userId: string,
+    ): Promise<CardEntity> {
+        const cards = await this.cardsRepository.findAllFromCurrentUser(userId);
+
+        const currentDate = new Date(Date.now());
+        const formattedCurrentDate = this.formatDate(currentDate);
+
+        const userCard: CardEntity = {
+            date: currentDate,
+            totalTime: {
+                hours: 0,
+                minutes: 0,
+            },
+        };
+
+        for (const card of cards) {
+            const formattedDate = this.formatDate(card.createdAt);
+
+            if (formattedCurrentDate !== formattedDate) continue;
+
+            const time = this.getTimeDifference(
+                card.createdAt,
+                card.finishedAt ?? currentDate,
+            );
+
+            let totalOfHours = time.hours + userCard.totalTime.hours;
+            let totalOfMinutes = time.minutes + userCard.totalTime.minutes;
+
+            if (totalOfMinutes >= 60) {
+                totalOfHours += 1;
+                totalOfMinutes -= 60;
+            }
+
+            userCard.totalTime = {
+                hours: totalOfHours,
+                minutes: totalOfMinutes,
+            };
+        }
+
+        return userCard;
+    }
+
+    async getAllPreviousCardsWithUserId(userId: string): Promise<CardEntity[]> {
+        const cards = await this.cardsRepository.findAllFromCurrentUser(userId);
 
         const hashTable: Record<string, CardEntity> = {};
 
@@ -38,7 +81,7 @@ export class CardsUseCase {
 
             if (formattedCurrentDate == formattedDate) continue;
 
-            const cardTotalTime = this.calculateTotalTime(
+            const cardTotalTime = this.getTimeDifference(
                 card.createdAt,
                 card.finishedAt ?? currentDate,
             );

@@ -5,11 +5,14 @@ import { CardsFactory } from '@test/factories/CardsFactory';
 import { CardsModule } from '@infrastructure/modules/CardsModule';
 
 import { CardsController } from './CardsController';
+import { faker } from '@faker-js/faker';
 
 describe('CardsController', () => {
     let sut: CardsController;
 
     let cardsUserCase: CardsUseCase;
+
+    let mock: jest.SpyInstance;
 
     beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -20,12 +23,42 @@ describe('CardsController', () => {
         cardsUserCase = moduleRef.get<CardsUseCase>(CardsUseCase);
     });
 
+    describe('getCurrentUserTime', () => {
+        beforeAll(() => {
+            mock = jest
+                .spyOn(cardsUserCase, 'getTodayTotalTimeFromCurrentUser')
+                .mockResolvedValue({
+                    date: faker.date.past(),
+                    totalTime: {
+                        hours: faker.datatype.number(24),
+                        minutes: faker.datatype.number(60),
+                    },
+                });
+        });
+
+        it('Should ensure method calls CardsUserCase.getTodayTotalTimeFromCurrentUser', async () => {
+            await sut.getCurrentUserTime();
+
+            expect(mock).toHaveBeenCalled();
+        });
+
+        it('Should ensure method returns correct values on success', async () => {
+            const bodyResponse = await sut.getCurrentUserTime();
+
+            expect(bodyResponse).toBeDefined();
+            expect(bodyResponse.date).toBeDefined();
+            expect(bodyResponse.totalTime).toBeDefined();
+        });
+    });
+
     describe('findAllFromCurrentUser', () => {
-        it('Should ensure method calls CardsUserCase.getAllCardsWithUserId', async () => {
-            const mock = jest
+        beforeAll(() => {
+            mock = jest
                 .spyOn(cardsUserCase, 'getAllPreviousCardsWithUserId')
                 .mockResolvedValue([]);
+        });
 
+        it('Should ensure method calls CardsUserCase.getAllCardsWithUserId', async () => {
             await sut.findAllFromCurrentUser();
 
             expect(mock).toHaveBeenCalled();

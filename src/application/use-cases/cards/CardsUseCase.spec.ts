@@ -11,6 +11,7 @@ describe('CardsUseCase', () => {
     let cardsRepository: CardsRepository;
 
     const currentDate = faker.date.past();
+    const userId = faker.datatype.uuid();
 
     beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -23,13 +24,13 @@ describe('CardsUseCase', () => {
         jest.spyOn(Date, 'now').mockReturnValue(currentDate.getTime());
     });
 
-    describe('getAllPreviousCardsWithUserId', () => {
-        it('Should ensure method calls CardsRepository.findAll', async () => {
+    describe('getTodayTotalTimeFromCurrentUser', () => {
+        it('Should ensure method calls CardsRepository.findAllFromCurrentUser', async () => {
             const mock = jest
-                .spyOn(cardsRepository, 'findAll')
+                .spyOn(cardsRepository, 'findAllFromCurrentUser')
                 .mockResolvedValue([]);
 
-            await sut.getAllPreviousCardsWithUserId();
+            await sut.getTodayTotalTimeFromCurrentUser(userId);
 
             expect(mock).toHaveBeenCalled();
         });
@@ -37,7 +38,10 @@ describe('CardsUseCase', () => {
         it('Should ensure method returns value correctly', async () => {
             jest.spyOn(Date, 'now').mockReturnValue(currentDate.getTime());
 
-            jest.spyOn(cardsRepository, 'findAll').mockResolvedValue([
+            jest.spyOn(
+                cardsRepository,
+                'findAllFromCurrentUser',
+            ).mockResolvedValue([
                 CardsFactory.generateCardWithCustomDates({
                     currentDate,
                     createdAtDays: 0,
@@ -70,14 +74,115 @@ describe('CardsUseCase', () => {
                 }),
             ]);
 
-            const result = await sut.getAllPreviousCardsWithUserId();
+            const result = await sut.getTodayTotalTimeFromCurrentUser(userId);
+
+            expect(result).toBeDefined();
+            expect(result).toStrictEqual({
+                date: currentDate,
+                totalTime: {
+                    hours: 1,
+                    minutes: 30,
+                },
+            });
+        });
+
+        it('Should ensure method formats the value  correctly', async () => {
+            jest.spyOn(
+                cardsRepository,
+                'findAllFromCurrentUser',
+            ).mockResolvedValue([
+                CardsFactory.generateCardWithCustomDates({
+                    currentDate,
+                    createdAtDays: 0,
+                    finishedAtHours: 4,
+                    finishedAtMinutes: 30,
+                }),
+                CardsFactory.generateCardWithCustomDates({
+                    currentDate,
+                    createdAtDays: 0,
+                    finishedAtHours: 2,
+                    finishedAtMinutes: 40,
+                }),
+                CardsFactory.generateCardWithCustomDates({
+                    currentDate,
+                    createdAtDays: 1,
+                    finishedAtHours: 2,
+                    finishedAtMinutes: 40,
+                }),
+            ]);
+
+            const result = await sut.getTodayTotalTimeFromCurrentUser(userId);
+
+            expect(result).toBeDefined();
+
+            expect(result.totalTime).toStrictEqual({
+                hours: 7,
+                minutes: 10,
+            });
+        });
+    });
+
+    describe('getAllPreviousCardsWithUserId', () => {
+        it('Should ensure method calls CardsRepository.findAllFromCurrentUser', async () => {
+            const mock = jest
+                .spyOn(cardsRepository, 'findAllFromCurrentUser')
+                .mockResolvedValue([]);
+
+            await sut.getAllPreviousCardsWithUserId(userId);
+
+            expect(mock).toHaveBeenCalled();
+        });
+
+        it('Should ensure method returns value correctly', async () => {
+            jest.spyOn(Date, 'now').mockReturnValue(currentDate.getTime());
+
+            jest.spyOn(
+                cardsRepository,
+                'findAllFromCurrentUser',
+            ).mockResolvedValue([
+                CardsFactory.generateCardWithCustomDates({
+                    currentDate,
+                    createdAtDays: 0,
+                    finishedAtHours: 1,
+                    finishedAtMinutes: 30,
+                }),
+                CardsFactory.generateCardWithCustomDates({
+                    currentDate,
+                    createdAtDays: 1,
+                    finishedAtHours: 4,
+                    finishedAtMinutes: 30,
+                }),
+                CardsFactory.generateCardWithCustomDates({
+                    currentDate,
+                    createdAtDays: 1,
+                    finishedAtHours: 2,
+                    finishedAtMinutes: 50,
+                }),
+                CardsFactory.generateCardWithCustomDates({
+                    currentDate,
+                    createdAtDays: 2,
+                    finishedAtHours: 2,
+                    finishedAtMinutes: 30,
+                }),
+                CardsFactory.generateCardWithCustomDates({
+                    currentDate,
+                    createdAtDays: 2,
+                    finishedAtHours: 5,
+                    finishedAtMinutes: 10,
+                }),
+            ]);
+
+            const result = await sut.getAllPreviousCardsWithUserId(userId);
 
             expect(result).toBeDefined();
             expect(result).toHaveLength(2);
         });
 
         it('Should ensure method formats the value  correctly', async () => {
-            jest.spyOn(cardsRepository, 'findAll').mockResolvedValue([
+            jest.spyOn(
+                cardsRepository,
+                'findAllFromCurrentUser',
+            ).mockResolvedValue([
                 CardsFactory.generateCardWithCustomDates({
                     currentDate,
                     createdAtDays: 1,
@@ -92,7 +197,7 @@ describe('CardsUseCase', () => {
                 }),
             ]);
 
-            const result = await sut.getAllPreviousCardsWithUserId();
+            const result = await sut.getAllPreviousCardsWithUserId(userId);
 
             expect(result).toBeDefined();
 
