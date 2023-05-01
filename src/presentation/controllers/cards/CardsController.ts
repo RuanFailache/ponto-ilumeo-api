@@ -7,13 +7,7 @@ export class CardsController {
 
     @Get()
     async findAllFromCurrentUser() {
-        const cards = await this.cardsUseCase.getAllCardsWithUserId();
-        const lastIndex = cards.length - 1;
-
-        return {
-            today: cards[lastIndex],
-            previous: cards.slice(0, lastIndex),
-        };
+        return this.cardsUseCase.getAllPreviousCardsWithUserId();
     }
 
     // @Patch()

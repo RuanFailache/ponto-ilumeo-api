@@ -1,21 +1,10 @@
 import { Test } from '@nestjs/testing';
-import { faker } from '@faker-js/faker';
 
 import { CardsUseCase } from '@application/use-cases';
-
+import { CardsFactory } from '@test/factories/CardsFactory';
 import { CardsModule } from '@infrastructure/modules/CardsModule';
 
 import { CardsController } from './CardsController';
-import { Card } from '@prisma/client';
-
-function generateFakeCard(): Card {
-    return {
-        id: faker.datatype.uuid(),
-        userId: faker.datatype.uuid(),
-        createdAt: faker.date.recent(),
-        finishedAt: faker.date.recent(),
-    };
-}
 
 describe('CardsController', () => {
     let sut: CardsController;
@@ -34,7 +23,7 @@ describe('CardsController', () => {
     describe('findAllFromCurrentUser', () => {
         it('Should ensure method calls CardsUserCase.getAllCardsWithUserId', async () => {
             const mock = jest
-                .spyOn(cardsUserCase, 'getAllCardsWithUserId')
+                .spyOn(cardsUserCase, 'getAllPreviousCardsWithUserId')
                 .mockResolvedValue([]);
 
             await sut.findAllFromCurrentUser();
@@ -43,23 +32,19 @@ describe('CardsController', () => {
         });
 
         it('Should ensure method returns correct values on success', async () => {
-            const today = generateFakeCard();
-
             jest.spyOn(
                 cardsUserCase,
-                'getAllCardsWithUserId',
+                'getAllPreviousCardsWithUserId',
             ).mockResolvedValue([
-                generateFakeCard(),
-                generateFakeCard(),
-                today,
+                CardsFactory.generateFakeCardEntity(),
+                CardsFactory.generateFakeCardEntity(),
+                CardsFactory.generateFakeCardEntity(),
             ]);
 
             const bodyResponse = await sut.findAllFromCurrentUser();
 
-            expect(bodyResponse.today).toBeDefined();
-            expect(bodyResponse.today).toStrictEqual(today);
-            expect(bodyResponse.previous).toBeDefined();
-            expect(bodyResponse.previous).toHaveLength(2);
+            expect(bodyResponse).toBeDefined();
+            expect(bodyResponse).toHaveLength(3);
         });
     });
 });
