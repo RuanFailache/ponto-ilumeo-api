@@ -15,7 +15,16 @@ model User {
     name             String
     registrationCode String @unique
 
-    cards Card[]
+    cards    Card[]
+    sessions Session[]
+}
+
+model Session {
+    id          String @id @default(uuid())
+    accessToken String
+    userId      String
+
+    User User? @relation(fields: [userId], references: [id])
 }
 
 model Card {

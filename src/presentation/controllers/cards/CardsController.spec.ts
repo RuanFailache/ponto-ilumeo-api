@@ -23,6 +23,12 @@ describe('CardsController', () => {
         cardsUserCase = moduleRef.get<CardsUseCase>(CardsUseCase);
     });
 
+    const request = {
+        user: {
+            id: faker.datatype.uuid(),
+        },
+    };
+
     describe('getCurrentUserTime', () => {
         beforeAll(() => {
             mock = jest
@@ -37,13 +43,13 @@ describe('CardsController', () => {
         });
 
         it('Should ensure method calls CardsUserCase.calculateTotalTimeForToday', async () => {
-            await sut.getCurrentUserTime();
+            await sut.getCurrentUserTime(request);
 
             expect(mock).toHaveBeenCalled();
         });
 
         it('Should ensure method returns correct values on success', async () => {
-            const bodyResponse = await sut.getCurrentUserTime();
+            const bodyResponse = await sut.getCurrentUserTime(request);
 
             expect(bodyResponse).toBeDefined();
             expect(bodyResponse.date).toBeDefined();
@@ -59,7 +65,7 @@ describe('CardsController', () => {
         });
 
         it('Should ensure method calls CardsUserCase.getAllCardsWithUserId', async () => {
-            await sut.findAllFromCurrentUser();
+            await sut.findAllFromCurrentUser(request);
 
             expect(mock).toHaveBeenCalled();
         });
@@ -74,7 +80,7 @@ describe('CardsController', () => {
                 CardsFactory.generateFakeCardEntity(),
             ]);
 
-            const bodyResponse = await sut.findAllFromCurrentUser();
+            const bodyResponse = await sut.findAllFromCurrentUser(request);
 
             expect(bodyResponse).toBeDefined();
             expect(bodyResponse).toHaveLength(3);

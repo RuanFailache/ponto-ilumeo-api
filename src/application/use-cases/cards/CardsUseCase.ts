@@ -109,4 +109,12 @@ export class CardsUseCase {
 
         return Object.values(hashTable);
     }
+
+    async create(userId: string) {
+        await this.cardsRepository.create(userId);
+    }
+
+    async finish(userId: string) {
+        await this.cardsRepository.finish(userId);
+    }
 }

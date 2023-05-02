@@ -7,6 +7,9 @@
     "license": "UNLICENSED",
     "scripts": {
         "build": "nest build",
+        "database:migration:run": "prisma migration dev",
+        "database:migration:generate": "prisma generate",
+        "database:seed": "prisma db seed",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "start": "nest start",
         "start:dev": "nest start --watch",
@@ -20,6 +23,9 @@
         "test:e2e": "jest --config ./test/jest-e2e.json",
         "prepare": "husky install"
     },
+    "prisma": {
+        "seed": "ts-node prisma/seed.ts"
+    },
     "lint-staged": {
         "*.ts": [
             "prettier --write",
@@ -30,6 +36,7 @@
     "dependencies": {
         "@nestjs/common": "^9.0.0",
         "@nestjs/core": "^9.0.0",
+        "@nestjs/jwt": "^10.0.3",
         "@nestjs/platform-express": "^9.0.0",
         "@prisma/client": "^4.13.0",
         "reflect-metadata": "^0.1.13",

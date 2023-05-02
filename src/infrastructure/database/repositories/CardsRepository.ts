@@ -13,4 +13,26 @@ export class CardsRepository {
             },
         });
     }
+
+    async create(userId: string) {
+        await this.prismaService.card.create({
+            data: {
+                userId,
+            },
+        });
+    }
+
+    async finish(userId: string) {
+        await this.prismaService.card.updateMany({
+            data: {
+                finishedAt: new Date(Date.now()),
+            },
+            where: {
+                AND: {
+                    userId,
+                    finishedAt: undefined,
+                },
+            },
+        });
+    }
 }
