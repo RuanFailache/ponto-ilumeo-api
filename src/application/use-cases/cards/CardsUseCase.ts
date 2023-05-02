@@ -39,8 +39,6 @@ export class CardsUseCase {
             },
         };
 
-        console.log({ todayCards, todayCard });
-
         for (const card of todayCards) {
             const time = this.calculateTimeDifference(
                 card.createdAt,
