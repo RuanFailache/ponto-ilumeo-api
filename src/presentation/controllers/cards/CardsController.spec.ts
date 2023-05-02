@@ -35,6 +35,7 @@ describe('CardsController', () => {
                 .spyOn(cardsUserCase, 'calculateTotalTimeForToday')
                 .mockResolvedValue({
                     date: faker.date.past(),
+                    isFinished: true,
                     totalTime: {
                         hours: faker.datatype.number(24),
                         minutes: faker.datatype.number(60),

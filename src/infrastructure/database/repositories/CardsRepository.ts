@@ -30,7 +30,7 @@ export class CardsRepository {
             where: {
                 AND: {
                     userId,
-                    finishedAt: undefined,
+                    finishedAt: null,
                 },
             },
         });

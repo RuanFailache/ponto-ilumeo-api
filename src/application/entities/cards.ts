@@ -5,5 +5,6 @@ export interface TimeEntity {
 
 export interface CardEntity {
     date: Date;
+    isFinished: boolean;
     totalTime: TimeEntity;
 }

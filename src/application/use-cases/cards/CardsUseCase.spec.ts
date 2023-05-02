@@ -77,12 +77,9 @@ describe('CardsUseCase', () => {
             const result = await sut.calculateTotalTimeForToday(userId);
 
             expect(result).toBeDefined();
-            expect(result).toStrictEqual({
-                date: currentDate,
-                totalTime: {
-                    hours: 1,
-                    minutes: 30,
-                },
+            expect(result.totalTime).toStrictEqual({
+                hours: 1,
+                minutes: 30,
             });
         });
 

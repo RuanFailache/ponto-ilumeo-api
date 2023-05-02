@@ -36,6 +36,7 @@ export class CardsFactory {
     static generateFakeCardEntity(): CardEntity {
         return {
             date: faker.date.recent(),
+            isFinished: true,
             totalTime: {
                 hours: faker.datatype.number(24),
                 minutes: faker.datatype.number(60),

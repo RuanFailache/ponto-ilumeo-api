@@ -10,4 +10,8 @@ export class UserUseCase {
         if (!user) throw new UnauthorizedException();
         return user.id;
     }
+
+    async getCurrentUser(userId: string) {
+        return this.userRepository.findById(userId);
+    }
 }

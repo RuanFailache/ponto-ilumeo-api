@@ -25,7 +25,13 @@ export class CardsUseCase {
         const currentDate = new Date(Date.now());
         const formattedCurrentDate = currentDate.toLocaleDateString();
 
-        const userCard: CardEntity = {
+        const todayCards = cards.filter((card) => {
+            const formattedDate = card.createdAt.toLocaleDateString();
+            return formattedCurrentDate === formattedDate;
+        });
+
+        const todayCard: CardEntity = {
+            isFinished: todayCards.every((card) => card.finishedAt !== null),
             date: currentDate,
             totalTime: {
                 hours: 0,
@@ -33,31 +39,29 @@ export class CardsUseCase {
             },
         };
 
-        for (const card of cards) {
-            const formattedDate = card.createdAt.toLocaleDateString();
+        console.log({ todayCards, todayCard });
 
-            if (formattedCurrentDate !== formattedDate) continue;
-
+        for (const card of todayCards) {
             const time = this.calculateTimeDifference(
                 card.createdAt,
                 card.finishedAt ?? currentDate,
             );
 
-            let totalOfHours = time.hours + userCard.totalTime.hours;
-            let totalOfMinutes = time.minutes + userCard.totalTime.minutes;
+            let totalOfHours = time.hours + todayCard.totalTime.hours;
+            let totalOfMinutes = time.minutes + todayCard.totalTime.minutes;
 
             if (totalOfMinutes >= 60) {
                 totalOfHours += 1;
                 totalOfMinutes -= 60;
             }
 
-            userCard.totalTime = {
+            todayCard.totalTime = {
                 hours: totalOfHours,
                 minutes: totalOfMinutes,
             };
         }
 
-        return userCard;
+        return todayCard;
     }
 
     async calculateTotalTimeForEachPreviousDay(
@@ -82,6 +86,7 @@ export class CardsUseCase {
 
             if (hashTable[formattedDate] === undefined) {
                 hashTable[formattedDate] = {
+                    isFinished: Boolean(card.finishedAt),
                     date: card.createdAt,
                     totalTime: cardTotalTime,
                 };
@@ -98,12 +103,9 @@ export class CardsUseCase {
                 totalOfMinutes -= 60;
             }
 
-            hashTable[formattedDate] = {
-                date: card.createdAt,
-                totalTime: {
-                    hours: totalOfHours,
-                    minutes: totalOfMinutes,
-                },
+            hashTable[formattedDate].totalTime = {
+                hours: totalOfHours,
+                minutes: totalOfMinutes,
             };
         }
 
